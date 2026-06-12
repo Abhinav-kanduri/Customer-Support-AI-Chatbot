@@ -1,0 +1,82 @@
+name: Deployment and Branch Policy
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+      - ready_for_review
+  push:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pr-branch-policy:
+    name: Validate PR branch policy
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate source and target branches
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BASE_BRANCH="${{ github.base_ref }}"
+          HEAD_BRANCH="${{ github.head_ref }}"
+
+          echo "Base branch: ${BASE_BRANCH}"
+          echo "Head branch: ${HEAD_BRANCH}"
+
+          if [[ "${BASE_BRANCH}" == "develop" ]]; then
+            if [[ ! "${HEAD_BRANCH}" =~ ^feature/.+ ]]; then
+              echo "::error::Pull requests into develop must come from a feature/* branch."
+              exit 1
+            fi
+          elif [[ "${BASE_BRANCH}" == "main" ]]; then
+            if [[ "${HEAD_BRANCH}" != "develop" ]]; then
+              echo "::error::Pull requests into main must come from develop."
+              exit 1
+            fi
+          else
+            echo "::error::Pull requests are only allowed into develop or main."
+            exit 1
+          fi
+
+          echo "Branch policy validation passed."
+
+  deploy-to-development:
+    name: Deploy to development
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deployment placeholder
+        run: |
+          echo "Deploy development environment from develop."
+          echo "Add build, test, and deployment commands here when the application code is added."
+
+  deploy-to-production:
+    name: Deploy to production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deployment placeholder
+        run: |
+          echo "Deploy production environment from main."
+          echo "Add build, test, and deployment commands here when the application code is added."
