@@ -2,7 +2,7 @@
 
 This repository uses a controlled pull request and deployment flow.
 
-## Branches
+## Branches and the stratergies
 
 | Branch | Purpose | Merge Source |
 | --- | --- | --- |
