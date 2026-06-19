@@ -62,10 +62,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deployment placeholder
-        run: |
-          echo "Deploy development environment from develop."
-          echo "Add build, test, and deployment commands here when the application code is added."
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway (development)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_DEV }}
+        run: railway up --service ${{ vars.RAILWAY_SERVICE_DEV }} --detach
 
   deploy-to-production:
     name: Deploy to production
@@ -76,7 +79,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deployment placeholder
-        run: |
-          echo "Deploy production environment from main."
-          echo "Add build, test, and deployment commands here when the application code is added."
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway (production)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
+        run: railway up --service ${{ vars.RAILWAY_SERVICE_PROD }} --detach
