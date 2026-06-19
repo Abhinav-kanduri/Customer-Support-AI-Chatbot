@@ -15,6 +15,7 @@ on:
     branches:
       - develop
       - main
+      - "feature/**"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -104,6 +105,11 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli@3
 
+      - name: Verify Railway auth
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_DEV }}
+        run: railway whoami
+
       - name: Deploy to Railway (development)
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_DEV }}
@@ -133,6 +139,11 @@ jobs:
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli@3
+
+      - name: Verify Railway auth
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
+        run: railway whoami
 
       - name: Deploy to Railway (production)
         env:
