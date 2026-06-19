@@ -92,6 +92,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Verify secrets are configured
+        env:
+          TOKEN: ${{ secrets.RAILWAY_TOKEN_DEV }}
+        run: |
+          if [[ -z "${TOKEN}" ]]; then
+            echo "::error::RAILWAY_TOKEN_DEV secret is not set. Add it to the 'development' GitHub environment."
+            exit 1
+          fi
+
       - name: Install Railway CLI
         run: npm install -g @railway/cli@3
 
@@ -112,6 +121,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Verify secrets are configured
+        env:
+          TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
+        run: |
+          if [[ -z "${TOKEN}" ]]; then
+            echo "::error::RAILWAY_TOKEN_PROD secret is not set. Add it to the 'production' GitHub environment."
+            exit 1
+          fi
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli@3
