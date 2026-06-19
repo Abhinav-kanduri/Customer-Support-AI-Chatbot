@@ -810,7 +810,63 @@ Summary:
 | `develop` | `feature/*` | Repository owner approval required |
 | `main` | `develop` | Repository owner approval required |
 
-The GitHub Actions workflow in `.github/workflows/deployment.yml` validates pull request branch direction and contains placeholders for development and production deployments.
+The GitHub Actions workflow in `.github/workflows/deployment.yml` validates pull request branch direction and deploys to Railway on merge.
+
+## Railway Deployment
+
+The app is deployed on [Railway](https://railway.com) using a single project with three isolated environments.
+
+| Environment | Triggered by | Purpose |
+| --- | --- | --- |
+| Development | Push to `develop` | Integration testing |
+| Production | Push to `main` | Live app |
+| Testing | Manual / PR | Exploratory testing |
+
+### Project Structure
+
+```
+Customer-Support-AI-Chatbot/
+├── app/
+│   └── main.py              # FastAPI application
+├── requirements.txt         # Python dependencies
+├── railway.toml             # Railway build and start config
+└── .github/
+    └── workflows/
+        └── deployment.yml   # GitHub Actions CI/CD pipeline
+```
+
+### Health API Endpoints
+
+| Endpoint | Response |
+| --- | --- |
+| `GET /` | `{"message": "Customer Support AI Chatbot is running"}` |
+| `GET /health` | `{"status": "ok", "uptime_seconds": 4.21}` |
+
+### How Deployments Work
+
+1. Developer pushes a `feature/*` branch and opens a PR into `develop`
+2. GitHub Actions validates the branch policy
+3. On merge to `develop`, the `deploy-to-development` job runs and deploys to the Railway **Development** environment
+4. Developer opens a PR from `develop` into `main`
+5. On merge to `main`, the `deploy-to-production` job runs and deploys to the Railway **Production** environment
+
+### Required GitHub Secrets and Variables
+
+**Secrets** (Settings → Secrets and variables → Actions → Secrets):
+
+| Secret | Description |
+| --- | --- |
+| `RAILWAY_TOKEN_DEV` | Railway token scoped to the Development environment |
+| `RAILWAY_TOKEN_PROD` | Railway token scoped to the Production environment |
+
+**Variables** (Settings → Secrets and variables → Actions → Variables):
+
+| Variable | Description |
+| --- | --- |
+| `RAILWAY_SERVICE_DEV` | `Customer-Support-AI-Agent` |
+| `RAILWAY_SERVICE_PROD` | `Customer-Support-AI-Agent` |
+
+For the full step-by-step setup guide including token creation, environment configuration, and troubleshooting, see [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md).
 
 ## Interview Summary
 

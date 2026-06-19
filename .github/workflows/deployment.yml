@@ -16,6 +16,10 @@ on:
       - develop
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -53,30 +57,66 @@ jobs:
 
           echo "Branch policy validation passed."
 
+  ci:
+    name: Lint and test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint with Ruff
+        run: |
+          pip install ruff
+          ruff check .
+
   deploy-to-development:
     name: Deploy to development
+    needs: ci
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
     environment: development
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deployment placeholder
-        run: |
-          echo "Deploy development environment from develop."
-          echo "Add build, test, and deployment commands here when the application code is added."
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@3
+
+      - name: Deploy to Railway (development)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_DEV }}
+        run: railway up --service ${{ vars.RAILWAY_SERVICE_DEV }} --detach
 
   deploy-to-production:
     name: Deploy to production
+    needs: ci
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
+    permissions:
+      contents: read
+      deployments: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deployment placeholder
-        run: |
-          echo "Deploy production environment from main."
-          echo "Add build, test, and deployment commands here when the application code is added."
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@3
+
+      - name: Deploy to Railway (production)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
+        run: railway up --service ${{ vars.RAILWAY_SERVICE_PROD }} --detach
