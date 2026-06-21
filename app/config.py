@@ -2,7 +2,7 @@
 
 All modules should import their settings from here instead of calling
 ``os.environ`` directly, so there is a single source of truth and missing
-variables fail loudly at startup with a clear message.
+variables fail loudly at startup with a clear message with configuration instructions.
 """
 
 import logging
