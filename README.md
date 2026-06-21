@@ -868,6 +868,214 @@ Customer-Support-AI-Chatbot/
 
 For the full step-by-step setup guide including token creation, environment configuration, and troubleshooting, see [RAILWAY_DEPLOYMENT.md](RAILWAY_DEPLOYMENT.md).
 
+## How to Run Locally
+
+### 1. Create a virtual environment
+
+```bash
+python -m venv venv
+```
+
+### 2. Activate the virtual environment
+
+**Windows (PowerShell):**
+```powershell
+venv\Scripts\Activate.ps1
+```
+
+**Windows (Command Prompt):**
+```bat
+venv\Scripts\activate.bat
+```
+
+**macOS / Linux:**
+```bash
+source venv/bin/activate
+```
+
+You will see `(venv)` at the start of your terminal prompt when it is active.
+
+### 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Set your OpenAI API key
+
+**Windows (PowerShell):**
+```powershell
+$env:OPENAI_API_KEY = "sk-..."
+```
+
+**macOS / Linux:**
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+### 5. Start the app
+
+```bash
+uvicorn app.main:app --reload
+```
+
+The server starts at `http://localhost:8000`. The `--reload` flag restarts it automatically when you save a file.
+
+### 6. Test the chat endpoint
+
+**Option A — Browser (recommended):**
+
+Open `http://localhost:8000/docs` in your browser. FastAPI provides a built-in Swagger UI where you can test every endpoint interactively without any extra tools.
+
+**Option B — curl (PowerShell):**
+
+```powershell
+curl -X POST http://localhost:8000/chat `
+  -H "Content-Type: application/json" `
+  -d '{"prompt": "How do I reset my password?"}'
+```
+
+**Option B — curl (macOS / Linux):**
+
+```bash
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "How do I reset my password?"}'
+```
+
+**Expected response:**
+```json
+{
+  "reply": "To reset your password, go to the login page and click 'Forgot Password'..."
+}
+```
+
+### Available endpoints
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/` | Confirms the app is running |
+| `GET` | `/health` | Returns uptime status |
+| `POST` | `/chat` | Sends a prompt to the AI and returns a reply |
+| `POST` | `/documents/chunks` | Embeds a paragraph and stores the chunk |
+
+### Store a document paragraph
+
+First run [`sql/document_chunks.sql`](sql/document_chunks.sql) in PostgreSQL or
+the Supabase SQL editor. The `chunk_vector` column must be
+`vector(1536)` because this endpoint uses OpenAI's
+`text-embedding-3-small` model.
+
+```bash
+curl -X POST http://localhost:8000/documents/chunks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "doc_id": "refund-policy",
+    "chunk_id": "paragraph-1",
+    "paragraph": "Customers may request a refund within 30 days."
+  }'
+```
+
+`doc_id` and `chunk_id` are optional and are generated when omitted. Sending
+the same pair again updates the text, vector, and `last_updated` timestamp.
+
+---
+
+## OpenAI API Configuration
+
+The `/chat` endpoint uses the OpenAI API to generate customer support responses.
+
+### Prerequisites
+
+- An OpenAI account with an active API key
+- The `openai` package (included in `requirements.txt`)
+
+### Generating an API Key
+
+1. Go to [platform.openai.com](https://platform.openai.com) → **API Keys**
+2. Click **Create new secret key**
+3. Give it a name (e.g. `Customer-Support-AI-Agent`)
+4. Copy the key immediately — it is only shown once
+
+### Local Development
+
+Set the key as an environment variable before starting the server.
+
+**PowerShell:**
+```powershell
+$env:OPENAI_API_KEY = "sk-..."
+```
+
+**macOS / Linux:**
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+Then run the app:
+```bash
+uvicorn app.main:app --reload
+```
+
+Alternatively, create a `.env` file in the project root (never commit this file):
+```
+OPENAI_API_KEY=sk-...
+```
+
+Make sure `.env` is listed in `.gitignore`.
+
+### Railway Deployment
+
+Add the key as an environment variable in Railway so it is available at runtime:
+
+1. Open your Railway project → select your service
+2. Go to the **Variables** tab
+3. Add a new variable:
+   - **Name:** `OPENAI_API_KEY`
+   - **Value:** your secret key
+4. Railway restarts the service automatically
+
+The app reads the key at startup with `os.environ["OPENAI_API_KEY"]` and will fail to start if it is missing.
+
+### Chat Endpoint
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/chat` | Send a prompt and receive an AI-generated support reply |
+
+**Request:**
+```json
+{
+  "prompt": "How do I reset my password?"
+}
+```
+
+**Response:**
+```json
+{
+  "reply": "To reset your password, go to the login page and click 'Forgot Password'..."
+}
+```
+
+**Test with curl:**
+```bash
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "How do I reset my password?"}'
+```
+
+**Interactive docs:** Open `http://localhost:8000/docs` in your browser to test the endpoint using the built-in Swagger UI.
+
+### Model
+
+The endpoint uses `gpt-4o` by default. The system prompt instructs the model to respond as a helpful customer support assistant. To change the model, update the `model` parameter in [app/routes/chat.py](app/routes/chat.py).
+
+### Security Notes
+
+- Never commit your API key to version control
+- Add `.env` to `.gitignore`
+- Rotate the key immediately if it is accidentally exposed
+- In Railway, use the Variables tab — not hardcoded values in `railway.toml`
+
 ## Interview Summary
 
 This project is more than an LLM that answers support questions. It is a governed AI support platform where ML classifies intent, RAG grounds answers in company knowledge, agents perform controlled business actions, MCP standardizes tool access, guardrails prevent unsafe behavior, and observability continuously measures quality, safety, latency, and cost.
