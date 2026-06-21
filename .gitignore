@@ -1,7 +1,7 @@
 # Environment variables
 .env
 .env.*
-.env.example
+!.env.example
 
 # Virtual environment
 venv/

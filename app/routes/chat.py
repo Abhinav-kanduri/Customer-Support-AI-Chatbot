@@ -1,11 +1,12 @@
-import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from openai import OpenAI
 
+from app.config import OPENAI_API_KEY
+
 router = APIRouter(prefix="/chat", tags=["chat"])
 
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 class ChatRequest(BaseModel):

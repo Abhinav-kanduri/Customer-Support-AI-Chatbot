@@ -957,6 +957,27 @@ curl -X POST http://localhost:8000/chat \
 | `GET` | `/` | Confirms the app is running |
 | `GET` | `/health` | Returns uptime status |
 | `POST` | `/chat` | Sends a prompt to the AI and returns a reply |
+| `POST` | `/documents/chunks` | Embeds a paragraph and stores the chunk |
+
+### Store a document paragraph
+
+First run [`sql/document_chunks.sql`](sql/document_chunks.sql) in PostgreSQL or
+the Supabase SQL editor. The `chunk_vector` column must be
+`vector(1536)` because this endpoint uses OpenAI's
+`text-embedding-3-small` model.
+
+```bash
+curl -X POST http://localhost:8000/documents/chunks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "doc_id": "refund-policy",
+    "chunk_id": "paragraph-1",
+    "paragraph": "Customers may request a refund within 30 days."
+  }'
+```
+
+`doc_id` and `chunk_id` are optional and are generated when omitted. Sending
+the same pair again updates the text, vector, and `last_updated` timestamp.
 
 ---
 
