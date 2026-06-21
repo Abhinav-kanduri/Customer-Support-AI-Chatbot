@@ -8,11 +8,15 @@ import app.config  # noqa: F401
 
 from app.routes.chat import router as chat_router
 from app.routes.documents import router as documents_router
+from app.routes.auth import router as auth_router
+from app.routes.escalated import router as escalated_router
 from app.database import check_database_connection, router as database_router
 
 app = FastAPI(title="Customer Support AI Chatbot")
 app.include_router(chat_router)
 app.include_router(documents_router)
+app.include_router(auth_router)
+app.include_router(escalated_router)
 app.include_router(database_router)
 
 START_TIME = time.time()
