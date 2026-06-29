@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(python -m pip install --upgrade \"starlette>=0.49.0\")",
+      "PowerShell(python -c \"import streamlit; from streamlit.web.cli import main; print\\('streamlit OK', streamlit.__version__\\)\")",
+      "PowerShell($env:MPLBACKEND = \"Agg\"; python \"datasets\\\\ml_model\\\\restaurant_intent_multi_algorithm_training \\(1\\).py\")",
+      "Bash(python -c ' *)"
+    ]
+  }
+}

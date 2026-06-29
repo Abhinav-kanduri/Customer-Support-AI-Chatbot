@@ -1,0 +1,9 @@
+model_name,accuracy,macro_f1,weighted_f1,train_seconds,model_file
+tfidf_complement_nb,1.0,1.0,1.0,1.1519083976745605,datasets\restaurant_intent_model_artifacts\candidate_models\tfidf_complement_nb.pkl
+tfidf_logistic_regression,1.0,1.0,1.0,2.8544909954071045,datasets\restaurant_intent_model_artifacts\candidate_models\tfidf_logistic_regression.pkl
+tfidf_sgd_log_loss,1.0,1.0,1.0,3.481947660446167,datasets\restaurant_intent_model_artifacts\candidate_models\tfidf_sgd_log_loss.pkl
+tfidf_linear_svc,1.0,1.0,1.0,5.559194326400757,datasets\restaurant_intent_model_artifacts\candidate_models\tfidf_linear_svc.pkl
+hybrid_word_char_logistic_regression,1.0,1.0,1.0,15.393520593643188,datasets\restaurant_intent_model_artifacts\candidate_models\hybrid_word_char_logistic_regression.pkl
+char_tfidf_logistic_regression,1.0,1.0,1.0,17.629680633544922,datasets\restaurant_intent_model_artifacts\candidate_models\char_tfidf_logistic_regression.pkl
+tfidf_multinomial_nb,0.9998611111111111,0.9998611107253076,0.9998611107253075,1.0858964920043945,datasets\restaurant_intent_model_artifacts\candidate_models\tfidf_multinomial_nb.pkl
+dummy_most_frequent,0.041666666666666664,0.0033333333333333335,0.0033333333333333335,0.4678475856781006,datasets\restaurant_intent_model_artifacts\candidate_models\dummy_most_frequent.pkl
