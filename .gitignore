@@ -23,7 +23,7 @@ build/
 .pytest_cache/
 .coverage
 htmlcov/
-
+my_readme.md
 # IDE
 .vscode/
 .idea/
